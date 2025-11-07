@@ -1,0 +1,122 @@
+<div class="p-4 sm:p-6 lg:p-8">
+  <div class="sm:flex sm:items-center sm:justify-between">
+    <h1 class="text-2xl font-bold text-gray-900">إدارة الموظفين</h1>
+    <button (click)="openModal()" type="button" class="mt-4 sm:mt-0 inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      إضافة موظف جديد
+    </button>
+  </div>
+
+  <!-- Employees Table -->
+  <div class="mt-8 flex flex-col">
+    <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="py-3.5 pr-4 pl-3 text-right text-sm font-semibold text-gray-900 sm:pl-6">المعرف</th>
+                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">الاسم</th>
+                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">المنصب</th>
+                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">الصلاحية</th>
+                <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">الوردية</th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">تعديل</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              @for (employee of employees(); track employee.id) {
+              <tr>
+                <td class="whitespace-nowrap py-4 pr-4 pl-3 text-sm font-medium text-gray-900 sm:pl-6">{{ employee.id }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ employee.name }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ employee.position }}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [class]="employee.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'">
+                    {{ employee.role === 'admin' ? 'مدير' : 'موظف' }}
+                  </span>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ employee.shift }}</td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium sm:pr-6">
+                  <a (click)="openModal(employee)" href="javascript:void(0);" class="text-indigo-600 hover:text-indigo-900">تعديل</a>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="6" class="text-center py-8 text-gray-500">
+                  لم يتم إضافة أي موظفين بعد.
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Form Modal -->
+@if (isModalOpen()) {
+<div class="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg m-4">
+    <form [formGroup]="employeeForm" (ngSubmit)="saveEmployee()">
+      <div class="p-6 border-b">
+        <h3 class="text-xl font-semibold text-gray-800">
+          {{ selectedEmployee() ? 'تعديل بيانات الموظف' : 'إضافة موظف جديد' }}
+        </h3>
+      </div>
+      <div class="p-6 space-y-4">
+        @if (errorMessage()) {
+        <div class="bg-red-100 border-r-4 border-red-500 text-red-700 p-4 rounded-md" role="alert">
+          <p>{{ errorMessage() }}</p>
+        </div>
+        }
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="employeeId" class="block text-sm font-medium text-gray-700">المعرف (اسم المستخدم)</label>
+            <input type="text" id="employeeId" formControlName="id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:bg-gray-100">
+          </div>
+          <div>
+            <label for="employeeName" class="block text-sm font-medium text-gray-700">الاسم الكامل</label>
+            <input type="text" id="employeeName" formControlName="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+          </div>
+        </div>
+        <div>
+          <label for="employeePassword" class="block text-sm font-medium text-gray-700">كلمة المرور</label>
+          <input type="password" id="employeePassword" formControlName="password" [placeholder]="selectedEmployee() ? 'اتركه فارغاً لعدم التغيير' : ''" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+        </div>
+        <div>
+          <label for="employeePosition" class="block text-sm font-medium text-gray-700">المنصب</label>
+          <input type="text" id="employeePosition" formControlName="position" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="employeeRole" class="block text-sm font-medium text-gray-700">الصلاحية</label>
+            <select id="employeeRole" formControlName="role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              <option value="employee">موظف</option>
+              <option value="admin">مدير</option>
+            </select>
+          </div>
+          <div>
+            <label for="employeeShift" class="block text-sm font-medium text-gray-700">الوردية</label>
+            <select id="employeeShift" formControlName="shift" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              <option value="صباحي">صباحي</option>
+              <option value="مسائي">مسائي</option>
+              <option value="ليلي">ليلي</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-4 bg-gray-50 flex justify-end space-x-2 space-x-reverse">
+        <button type="button" (click)="closeModal()" class="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">إلغاء</button>
+        <button type="submit" [disabled]="isSaving()" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:bg-indigo-400">
+          @if(isSaving()){ 'جاري الحفظ...' } @else { 'حفظ' }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

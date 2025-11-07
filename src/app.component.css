@@ -1,0 +1,10 @@
+/* Using Tailwind CSS via CDN, so minimal custom CSS is needed. */
+/* Add a transition for the main content view switching for a smoother UX */
+main > * {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

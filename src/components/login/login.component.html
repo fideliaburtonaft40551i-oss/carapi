@@ -1,0 +1,72 @@
+
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4 sm:px-6 lg:px-8">
+  <div class="w-full max-w-md space-y-8">
+    <div>
+      <svg class="mx-auto h-12 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      </svg>
+      <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+        نظام إدارة محطات الشحن
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        تسجيل الدخول إلى حسابك
+      </p>
+    </div>
+    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="rounded-md shadow-sm -space-y-px">
+        <div>
+          <label for="username" class="sr-only">اسم المستخدم</label>
+          <input 
+            id="username" 
+            name="username" 
+            type="text" 
+            required 
+            [ngModel]="username()"
+            (ngModelChange)="username.set($event)"
+            class="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" 
+            placeholder="اسم المستخدم">
+        </div>
+        <div>
+          <label for="password" class="sr-only">كلمة المرور</label>
+          <input 
+            id="password" 
+            name="password" 
+            type="password" 
+            required 
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            class="relative block w-full appearance-none rounded-b-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" 
+            placeholder="كلمة المرور">
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="bg-red-100 border-r-4 border-red-500 text-red-700 p-4 rounded-md" role="alert">
+          <p>{{ errorMessage() }}</p>
+        </div>
+      }
+
+      <div>
+        <button 
+          type="submit" 
+          [disabled]="isLoading()"
+          class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-300 disabled:cursor-not-allowed">
+          @if (isLoading()) {
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>جاري الدخول...</span>
+          } @else {
+            <span class="absolute inset-y-0 right-0 flex items-center pr-3">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-indigo-500 group-hover:text-indigo-400">
+                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+              </svg>
+            </span>
+            <span>تسجيل الدخول</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

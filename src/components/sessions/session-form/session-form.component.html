@@ -1,0 +1,175 @@
+<div class="bg-white rounded-lg shadow-xl w-full max-w-4xl my-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between p-6 border-b">
+    <h1 class="text-2xl font-bold text-gray-900">
+      @switch (mode()) {
+        @case ('create') { بدء جلسة شحن جديدة }
+        @case ('complete') { إنهاء جلسة شحن #{{ sessionId() }} }
+        @case ('view') { تفاصيل جلسة الشحن #{{ sessionId() }} }
+      }
+    </h1>
+    <button (click)="close()" type="button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <span class="sr-only">إغلاق</span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="text-center p-12">
+      <p class="text-gray-600">جاري تحميل البيانات...</p>
+    </div>
+  } @else {
+    <div class="p-6">
+      <!-- Error Message -->
+      @if (errorMessage()) {
+        <div class="bg-red-100 border-r-4 border-red-500 text-red-700 p-4 rounded-md mb-6" role="alert">
+          <p>{{ errorMessage() }}</p>
+        </div>
+      }
+
+      <!-- Create Mode Form -->
+      @if (mode() === 'create') {
+        <form [formGroup]="startSessionForm" (ngSubmit)="onStartSession()" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label for="station" class="block text-sm font-medium text-gray-700">المحطة</label>
+              <input type="text" id="station" formControlName="station" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+            <div>
+              <label for="platform" class="block text-sm font-medium text-gray-700">المنصة</label>
+              <input type="number" id="platform" formControlName="platform" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+          </div>
+          <div>
+            <label for="vehicleType" class="block text-sm font-medium text-gray-700">نوع المركبة</label>
+            <input type="text" id="vehicleType" formControlName="vehicleType" placeholder="مثال: Tesla Model 3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">صورة المركبة (اختياري)</label>
+            <div class="mt-1 flex items-center">
+              @if (startSessionForm.get('vehicleImageUrl')?.value) {
+                <img [src]="startSessionForm.get('vehicleImageUrl')?.value" alt="Preview" class="w-24 h-24 object-cover rounded-md mr-4">
+              }
+              <input type="file" (change)="onFileChange($event, 'vehicleImageUrl', startSessionForm)" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
+            </div>
+          </div>
+           <div class="pt-4 flex justify-end space-x-2 space-x-reverse border-t">
+              <button type="button" (click)="close()" class="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">إلغاء</button>
+              <button type="submit" [disabled]="isSaving()" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-6 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:bg-indigo-400">
+                @if(isSaving()){ 'جاري الحفظ...' } @else { 'بدء الجلسة' }
+              </button>
+            </div>
+        </form>
+      }
+
+      <!-- View / Complete Mode -->
+      @if (session(); as currentSession) {
+        <!-- Session Details (Read-only) -->
+        <div class="border-b border-gray-200 pb-6 mb-6">
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">بيانات الجلسة</h3>
+          <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">المركبة</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ currentSession.vehicleType }}</dd>
+            </div>
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">المحطة / المنصة</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ currentSession.station }} / {{ currentSession.platform }}</dd>
+            </div>
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">وقت البدء</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ currentSession.startTime | date:'full' }}</dd>
+            </div>
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">الحالة</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                @if (currentSession.status === 'completed') { <span class="text-green-700">مكتملة</span> } @else { <span class="text-yellow-700">نشطة</span> }
+              </dd>
+            </div>
+            @if(currentSession.vehicleImageUrl) {
+              <div class="sm:col-span-2">
+                <dt class="text-sm font-medium text-gray-500">صورة المركبة</dt>
+                <dd class="mt-1"><img [src]="currentSession.vehicleImageUrl" alt="Vehicle" class="w-48 h-auto object-cover rounded-lg"></dd>
+              </div>
+            }
+          </dl>
+        </div>
+        
+        <!-- Completion Form -->
+        @if (mode() === 'complete') {
+          <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">إدخال بيانات إنهاء الشحن</h3>
+          <form [formGroup]="completeSessionForm" (ngSubmit)="onCompleteSession()" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label for="kwh" class="block text-sm font-medium text-gray-700">كمية الشحن (kWh)</label>
+                <input type="number" step="0.01" id="kwh" formControlName="kwh" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              </div>
+              <div>
+                <label for="duration" class="block text-sm font-medium text-gray-700">مدة الشحن (دقائق)</label>
+                <input type="number" id="duration" formControlName="durationMinutes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              </div>
+               <div>
+                <label for="amount" class="block text-sm font-medium text-gray-700">المبلغ المستلم (دينار)</label>
+                <input type="number" step="0.01" id="amount" formControlName="amount" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              </div>
+            </div>
+            <div>
+              <label for="paymentMethod" class="block text-sm font-medium text-gray-700">طريقة الدفع</label>
+              <select id="paymentMethod" formControlName="paymentMethod" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <option value="cash">نقداً</option>
+                <option value="card">بطاقة</option>
+                <option value="transfer">تحويل إلكتروني</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">صورة شاشة المنصة (اختياري)</label>
+               <div class="mt-1 flex items-center">
+                 @if (completeSessionForm.get('screenImageUrl')?.value) {
+                  <img [src]="completeSessionForm.get('screenImageUrl')?.value" alt="Preview" class="w-24 h-24 object-cover rounded-md mr-4">
+                 }
+                <input type="file" (change)="onFileChange($event, 'screenImageUrl', completeSessionForm)" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100">
+               </div>
+            </div>
+            <div class="pt-4 flex justify-end space-x-2 space-x-reverse border-t">
+              <button type="button" (click)="close()" class="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">إلغاء</button>
+              <button type="submit" [disabled]="isSaving()" class="inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-6 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:bg-green-400">
+                @if(isSaving()){ 'جاري الحفظ...' } @else { 'إنهاء وحفظ الجلسة' }
+              </button>
+            </div>
+          </form>
+        } @else {
+          <!-- Readonly details for completed session -->
+           <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">وقت الانتهاء</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ currentSession.endTime | date:'full' }}</dd>
+            </div>
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">المبلغ المدفوع</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ currentSession.amount | currency:'دينار ':'symbol':'1.2-2' }} ({{currentSession.paymentMethod}})</dd>
+            </div>
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">الطاقة المستهلكة</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ currentSession.kwh }} kWh</dd>
+            </div>
+             <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">مدة الشحن</dt>
+              <dd class="mt-1 text-sm text-gray-900">{{ currentSession.durationMinutes }} دقيقة</dd>
+            </div>
+            @if(currentSession.screenImageUrl) {
+              <div class="sm:col-span-2">
+                <dt class="text-sm font-medium text-gray-500">صورة شاشة المنصة</dt>
+                <dd class="mt-1"><img [src]="currentSession.screenImageUrl" alt="Screen" class="w-48 h-auto object-cover rounded-lg"></dd>
+              </div>
+            }
+          </dl>
+          <div class="pt-4 flex justify-end space-x-2 space-x-reverse border-t">
+              <button type="button" (click)="close()" class="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">إغلاق</button>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

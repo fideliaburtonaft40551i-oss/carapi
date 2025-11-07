@@ -1,0 +1,68 @@
+<div class="p-4 sm:p-6 lg:p-8">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">التقارير المالية والتشغيلية</h1>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <p class="text-sm font-medium text-gray-500">إجمالي الإيرادات (كل الشحنات)</p>
+      <p class="text-3xl font-bold text-gray-900">{{ totalRevenue() | currency:'دينار ':'symbol':'1.2-2' }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <p class="text-sm font-medium text-gray-500">إجمالي الطاقة المباعة</p>
+      <p class="text-3xl font-bold text-gray-900">{{ totalKwh() | number:'1.2-2' }} <span class="text-lg">kWh</span></p>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <p class="text-sm font-medium text-gray-500">إجمالي الشحنات المكتملة</p>
+      <p class="text-3xl font-bold text-gray-900">{{ completedSessions().length }}</p>
+    </div>
+  </div>
+
+  <!-- Gemini AI Summary Section -->
+  <div class="bg-white p-6 rounded-lg shadow-md border border-indigo-200">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-bold text-gray-800">
+        <span class="text-indigo-600">✨</span>
+        التحليل الذكي للتقرير
+      </h2>
+      <button 
+        (click)="generateSummary()" 
+        [disabled]="isLoadingSummary()"
+        class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-400">
+          @if(isLoadingSummary()) {
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>جاري التحليل...</span>
+          } @else {
+             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.456-2.456L12.5 18l1.178-.398a3.375 3.375 0 002.456-2.456L16.5 14.25l.398 1.178a3.375 3.375 0 002.456 2.456L20.5 18l-1.178.398a3.375 3.375 0 00-2.456 2.456z" />
+             </svg>
+            <span>توليد ملخص ذكي</span>
+          }
+      </button>
+    </div>
+    
+    @if (isLoadingSummary()) {
+      <div class="mt-4 text-center p-8">
+        <div role="status">
+          <svg aria-hidden="true" class="inline w-10 h-10 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-indigo-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+              <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+          </svg>
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-4 text-gray-600">يقوم الذكاء الاصطناعي بتحليل البيانات... قد يستغرق هذا بضع ثوانٍ.</p>
+      </div>
+    } @else if(summary()) {
+      <div class="mt-4 prose prose-lg max-w-none text-gray-700 whitespace-pre-wrap">
+        {{ summary() }}
+      </div>
+      <p class="text-xs text-gray-400 mt-4">تم إنشاؤه بواسطة Gemini AI.</p>
+    } @else {
+      <div class="mt-4 text-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+        <p class="text-gray-500">اضغط على زر "توليد ملخص ذكي" للحصول على تحليل فوري لبياناتك.</p>
+      </div>
+    }
+  </div>
+</div>
