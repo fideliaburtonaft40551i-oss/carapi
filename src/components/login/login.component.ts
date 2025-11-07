@@ -6,7 +6,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  standalone: true,
+  // Removed standalone: true as it's the default in Angular v20+
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

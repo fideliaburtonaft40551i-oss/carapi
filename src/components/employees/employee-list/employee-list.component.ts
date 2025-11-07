@@ -1,3 +1,4 @@
+
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -6,7 +7,7 @@ import { Employee, UserWithCredentials } from '../../../models/employee.model';
 
 @Component({
   selector: 'app-employee-list',
-  standalone: true,
+  // Removed standalone: true as it's the default in Angular v20+
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './employee-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,17 +24,20 @@ export class EmployeeListComponent {
   errorMessage = signal('');
   selectedEmployee = signal<Employee | null>(null);
   
-  // FIX: Initialize FormGroup as a property initializer instead of in the constructor to resolve injection context issues. This addresses the "Property 'group' does not exist on type 'unknown'" error.
-  employeeForm = this.fb.group({
-    id: ['', Validators.required],
-    name: ['', Validators.required],
-    password: [''], // Not required on edit
-    role: ['employee' as 'admin' | 'employee', Validators.required],
-    position: ['', Validators.required],
-    shift: ['صباحي' as 'صباحي' | 'مسائي' | 'ليلي', Validators.required],
-  });
+  // Declared property for FormGroup
+  employeeForm: FormGroup;
 
-  constructor() {}
+  constructor() {
+    // Initialize FormGroup in the constructor to ensure FormBuilder is fully available.
+    this.employeeForm = this.fb.group({
+      id: ['', Validators.required],
+      name: ['', Validators.required],
+      password: [''], // Not required on edit
+      role: ['employee' as 'admin' | 'employee', Validators.required],
+      position: ['', Validators.required],
+      shift: ['صباحي' as 'صباحي' | 'مسائي' | 'ليلي', Validators.required],
+    });
+  }
 
   openModal(employee: Employee | null = null): void {
     this.errorMessage.set('');

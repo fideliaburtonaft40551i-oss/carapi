@@ -1,3 +1,4 @@
+
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { DataService } from '../../../services/data.service';
@@ -6,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-session-list',
-  standalone: true,
+  // Removed standalone: true as it's the default in Angular v20+
   imports: [CommonModule, CurrencyPipe, DatePipe, FormsModule],
   templateUrl: './session-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

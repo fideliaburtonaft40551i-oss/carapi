@@ -1,4 +1,5 @@
 
+
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { DataService } from '../../services/data.service';
@@ -6,7 +7,7 @@ import { ChargingSession } from '../../models/charging-session.model';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
+  // Removed standalone: true as it's the default in Angular v20+
   imports: [CommonModule, CurrencyPipe],
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

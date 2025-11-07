@@ -12,7 +12,7 @@ import { User } from '../models/user.model';
 })
 export class DataService {
   private http = inject(HttpClient);
-  private apiUrl = 'api'; // Base path to the API folder
+  private apiUrl = 'https://24.jopythonapps.com/ai/api'; // Base path to the API folder
 
   sessions = signal<ChargingSession[]>([]);
   employees = signal<Employee[]>([]);

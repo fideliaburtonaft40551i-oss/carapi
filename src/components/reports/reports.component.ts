@@ -1,4 +1,5 @@
 
+
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { DataService } from '../../services/data.service';
@@ -6,7 +7,7 @@ import { GeminiService } from '../../services/gemini.service';
 
 @Component({
   selector: 'app-reports',
-  standalone: true,
+  // Removed standalone: true as it's the default in Angular v20+
   imports: [CommonModule, CurrencyPipe],
   templateUrl: './reports.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

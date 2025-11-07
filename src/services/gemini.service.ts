@@ -1,4 +1,5 @@
 
+
 import { Injectable } from '@angular/core';
 import { GoogleGenAI, GenerateContentResponse } from '@google/genai';
 import { ChargingSession } from '../models/charging-session.model';
@@ -11,8 +12,8 @@ export class GeminiService {
 
   constructor() {
     // The API key must be provided through environment variables.
-    // This is a placeholder and should be configured in a real build environment.
-    const apiKey = (window as any).process?.env?.API_KEY ?? '';
+    // Access process.env.API_KEY directly as per guidelines; assume the build environment handles injection.
+    const apiKey = process.env.API_KEY ?? '';
     if (!apiKey) {
       console.warn("Gemini API key is not set. Smart features will be disabled.");
     }

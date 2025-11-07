@@ -1,3 +1,4 @@
+
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,7 +8,7 @@ import { ChargingSession } from '../../../models/charging-session.model';
 
 @Component({
   selector: 'app-session-form',
-  standalone: true,
+  // Removed standalone: true as it's the default in Angular v20+
   imports: [CommonModule, ReactiveFormsModule, DatePipe, CurrencyPipe],
   templateUrl: './session-form.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,23 +39,27 @@ export class SessionFormComponent {
   });
 
   // Forms
-  // FIX: Initialize FormGroups as property initializers instead of in the constructor to resolve injection context issues. This addresses the "Property 'group' does not exist on type 'unknown'" error.
-  startSessionForm = this.fb.group({
-    station: ['المحطة الرئيسية', Validators.required],
-    platform: [1, [Validators.required, Validators.min(1)]],
-    vehicleType: ['', Validators.required],
-    vehicleImageUrl: [''],
-  });
-
-  completeSessionForm = this.fb.group({
-    kwh: [null, [Validators.required, Validators.min(0.1)]],
-    durationMinutes: [null, [Validators.required, Validators.min(1)]],
-    amount: [null, [Validators.required, Validators.min(0)]],
-    paymentMethod: ['cash' as 'cash' | 'card' | 'transfer', Validators.required],
-    screenImageUrl: [''],
-  });
+  // Declared properties for FormGroup
+  startSessionForm: FormGroup;
+  completeSessionForm: FormGroup;
 
   constructor() {
+    // Initialize FormGroups in the constructor to ensure FormBuilder is fully available.
+    this.startSessionForm = this.fb.group({
+      station: ['المحطة الرئيسية', Validators.required],
+      platform: [1, [Validators.required, Validators.min(1)]],
+      vehicleType: ['', Validators.required],
+      vehicleImageUrl: [''],
+    });
+
+    this.completeSessionForm = this.fb.group({
+      kwh: [null, [Validators.required, Validators.min(0.1)]],
+      durationMinutes: [null, [Validators.required, Validators.min(1)]],
+      amount: [null, [Validators.required, Validators.min(0)]],
+      paymentMethod: ['cash' as 'cash' | 'card' | 'transfer', Validators.required],
+      screenImageUrl: [''],
+    });
+
     // Effect to load session data when sessionId changes
     effect(() => {
       const id = this.sessionId();
